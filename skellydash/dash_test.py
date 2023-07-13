@@ -21,12 +21,17 @@ path_to_numpy_array = Path(r"D:\2023-05-17_MDN_NIH_data\1.0_recordings\calib_3\s
 
 marker_figure, marker_position_df = create_skeleton_figure(path_to_numpy_array)
 
-
 app.layout = dbc.Container([
     dbc.Row([
-        dbc.Col(dcc.Graph(id='main-graph', figure=marker_figure), md=6, style={'height': '100vh', 'display': 'flex', 'flex-direction': 'column', 'justify-content': 'center'}),
+        dbc.Col([
+            html.H2("3D Scatter Plot", className="text-primary"),
+            dcc.Graph(id='main-graph', figure=marker_figure)], 
+            md=6, style={'height': '100vh', 'display': 'flex', 'flex-direction': 'column', 'justify-content': 'center'}
+        ),
         dbc.Col(
             dbc.Container([
+                html.H2("Marker Trajectory", className="text-primary"),
+                html.H3(id='selected-marker', children="Select a marker", className="text-info"),
                 dcc.Graph(id='x-trajectory'),
                 dcc.Graph(id='y-trajectory'),
                 dcc.Graph(id='z-trajectory'),
@@ -40,7 +45,8 @@ app.layout = dbc.Container([
 @app.callback(
     [Output('x-trajectory', 'figure'),
      Output('y-trajectory', 'figure'),
-     Output('z-trajectory', 'figure')],
+     Output('z-trajectory', 'figure'),
+     Output('selected-marker', 'children')],  # Add this line
     Input('main-graph', 'clickData'),
 )
 
@@ -50,7 +56,7 @@ def display_trajectories(clickData):
 
         # rest of your callback code here
     if clickData is None or 'points' not in clickData or len(clickData['points']) == 0 or 'id' not in clickData['points'][0]:
-        return {}, {}, {}
+        return {}, {}, {}, "Select a marker"
 
     # Assuming the marker name is in clickData, we can find the trajectories
     marker = clickData['points'][0]['id']
@@ -61,7 +67,6 @@ def display_trajectories(clickData):
     fig_x = px.line(df_marker, x='frame', y='x')
     fig_x.update_xaxes(title_text = '', showticklabels=False)
     fig_x.update_yaxes(title_text='X', title_font=dict(size=18, ))
-    fig_x.update_layout(title_text='Trajectories for: ' + marker, title_font=dict(size=24), height = trajectory_plot_height)
 
     fig_y = px.line(df_marker, x='frame', y='y')
     fig_y.update_xaxes(title_text = '',showticklabels=False) # Remove X-axis labels for this graph
@@ -76,7 +81,7 @@ def display_trajectories(clickData):
 
 
     
-    return fig_x, fig_y, fig_z
+    return fig_x, fig_y, fig_z, marker  
 
 if __name__ == '__main__':
     app.run_server(debug=False)
