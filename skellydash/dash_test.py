@@ -55,22 +55,19 @@ app.layout = dbc.Container([
             dbc.Container([
                 html.H2("Marker Trajectory", className="text-primary"),
                 html.H3(id='selected-marker', children="Select a marker", className="text-info"),
-                dcc.Graph(id='x-trajectory'),
-                dcc.Graph(id='y-trajectory'),
-                dcc.Graph(id='z-trajectory'),
+                html.Div(id='trajectory-plots')  # This Div will contain the plots
             ], style={'height': '100vh'}),
-            md=5),
+            md=5
+        )
     ])
 ], fluid=True)
 
 
 
 @app.callback(
-    [Output('x-trajectory', 'figure'),
-     Output('y-trajectory', 'figure'),
-     Output('z-trajectory', 'figure'),
-     Output('selected-marker', 'children'),
-     Output({'type': 'marker-button', 'index': ALL}, 'className')],
+    [Output('selected-marker', 'children'),
+     Output({'type': 'marker-button', 'index': ALL}, 'className'),
+     Output('trajectory-plots', 'children')],  # We added this line
     [Input('main-graph', 'clickData'),
      Input({'type': 'marker-button', 'index': ALL}, 'n_clicks')],
     [State('selected-marker', 'children'),
@@ -99,6 +96,9 @@ def display_trajectories(clickData, marker_clicks, selected_marker, button_ids):
 
     df_marker = marker_position_df[marker_position_df.marker == marker]
 
+    if df_marker.empty:
+        return marker, updated_classnames, None
+
     trajectory_plot_height = 350
     fig_x = px.line(df_marker, x='frame', y='x')
     fig_x.update_xaxes(title_text = '', showticklabels=False)
@@ -114,7 +114,8 @@ def display_trajectories(clickData, marker_clicks, selected_marker, button_ids):
     fig_z.update_yaxes(title_text='Z', title_font=dict(size=18))
     fig_z.update_layout(margin=dict(t=5), height = trajectory_plot_height)
 
-    return fig_x, fig_y, fig_z, marker, updated_classnames
+    return marker, updated_classnames, [dcc.Graph(figure=fig_x), dcc.Graph(figure=fig_y), dcc.Graph(figure=fig_z)]
+
 
 
 if __name__ == '__main__':
