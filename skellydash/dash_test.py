@@ -96,13 +96,14 @@ app.layout = dbc.Container([
 @app.callback(
     [Output('selected-marker', 'children'),
      Output({'type': 'marker-button', 'index': ALL}, 'className'),
-     Output('trajectory-plots', 'children')],  # We added this line
+     Output('trajectory-plots', 'children')],
     [Input('main-graph', 'clickData'),
+     Input('main-graph', 'hoverData'),  # New Input for hoverData
      Input({'type': 'marker-button', 'index': ALL}, 'n_clicks')],
     [State('selected-marker', 'children'),
      State({'type': 'marker-button', 'index': ALL}, 'id')]
 )
-def display_trajectories(clickData, marker_clicks, selected_marker, button_ids):
+def display_trajectories(clickData, hoverData, marker_clicks, selected_marker, button_ids):
     ctx = dash.callback_context
     if not ctx.triggered:
         return dash.no_update
@@ -120,6 +121,8 @@ def display_trajectories(clickData, marker_clicks, selected_marker, button_ids):
     for button_id in button_ids:
         if button_id['index'] == marker:
             updated_classnames.append('btn btn-warning')
+        elif hoverData is not None and 'points' in hoverData and len(hoverData['points']) > 0 and 'id' in hoverData['points'][0] and button_id['index'] == hoverData['points'][0]['id']: 
+            updated_classnames.append('btn btn-info')  
         else:
             updated_classnames.append('btn btn-dark')
 
@@ -128,6 +131,11 @@ def display_trajectories(clickData, marker_clicks, selected_marker, button_ids):
     if df_marker.empty:
         return marker, updated_classnames, None
 
+    # Check if the trigger was a hover event. If it was, do not update the plots
+    if "hoverData" in input_id:
+        return marker, updated_classnames, dash.no_update
+
+    # If the trigger was not a hover event, proceed with generating and returning the plots
     trajectory_plot_height = 350
     fig_x = px.line(df_marker, x='frame', y='x')
     fig_x.update_xaxes(title_text = '', showticklabels=False)
