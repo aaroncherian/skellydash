@@ -28,7 +28,7 @@ def display_marker_list():
             html.Button(
                 marker, 
                 id={'type': 'marker-button', 'index': marker}, 
-                className='btn btn-outline-primary', 
+                className='btn btn-dark', 
                 style={'margin': '5px', 'width': '120px', 'height': 'px', 'padding': '2px', 'word-wrap': 'break-word'}
             )
         )
@@ -40,15 +40,17 @@ def display_marker_list():
 app.layout = dbc.Container([
     dbc.Row([
         dbc.Col([
-            html.H2("Marker List", className="text-primary"),
-            html.Div(id='marker-list', children=display_marker_list(), style={'display': 'flex', 'flexWrap': 'wrap'})], 
-            md=1, style={'height': '100vh'}
-        ),
-        dbc.Col([
             html.H2("3D Scatter Plot", className="text-primary"),
-            dcc.Graph(id='main-graph', figure=marker_figure)], 
-            md=6, style={'height': '100vh'}
-        ),
+            dcc.Graph(id='main-graph', figure=marker_figure),
+            html.H3("Marker List", className="text-primary"),
+            dbc.Row([
+                dbc.Col([
+                    html.Div(id='marker-list', 
+                             children=display_marker_list(), 
+                             style={'display': 'flex', 'flexWrap': 'wrap'})
+                ])
+            ])
+        ], md=6, style={'height': '100vh'}),
         dbc.Col(
             dbc.Container([
                 html.H2("Marker Trajectory", className="text-primary"),
@@ -60,6 +62,7 @@ app.layout = dbc.Container([
             md=5),
     ])
 ], fluid=True)
+
 
 
 @app.callback(
@@ -92,7 +95,7 @@ def display_trajectories(clickData, marker_clicks, selected_marker, button_ids):
         if button_id['index'] == marker:
             updated_classnames.append('btn btn-primary')
         else:
-            updated_classnames.append('btn btn-outline-primary')
+            updated_classnames.append('btn btn-dark')
 
     df_marker = marker_position_df[marker_position_df.marker == marker]
 
