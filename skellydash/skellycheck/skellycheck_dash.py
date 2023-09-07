@@ -1,3 +1,12 @@
+
+from pathlib import Path
+import numpy as np
+import pandas as pd
+
+from convert_array_to_dataframe import convert_3d_array_to_dataframe, mediapipe_markers, qualisys_markers
+from marker_extraction import extract_specific_markers, markers_to_extract
+from marker_3d_graph import create_marker_figure_from_dataframe
+
 import dash
 from dash import dcc
 from dash import html
@@ -6,20 +15,37 @@ import dash_bootstrap_components as dbc
 from dash_bootstrap_templates import load_figure_template
 import json
 
-from full_skeleton_graph import create_skeleton_figure
-from pathlib import Path
-
 import plotly.express as px
 
+path_to_freemocap_array = Path(r"D:\2023-05-17_MDN_NIH_data\1.0_recordings\calib_3\sesh_2023-05-17_14_53_48_MDN_NIH_Trial3\output_data\mediapipe_body_3d_xyz_transformed.npy")
+path_to_qualisys_array = r"D:\2023-05-17_MDN_NIH_data\1.0_recordings\calib_3\qualisys_MDN_NIH_Trial3\output_data\clipped_qualisys_skel_3d.npy"
+
+freemocap_3d_data = np.load(path_to_freemocap_array)
+qualisys_3d_data = np.load(path_to_qualisys_array)
+
+freemocap_3d_data = freemocap_3d_data[0:10000, :, :]
+qualisys_3d_data = qualisys_3d_data[0:10000, :, :]
+
+freemocap_extracted_data = extract_specific_markers(data_marker_dimension=freemocap_3d_data, list_of_markers=mediapipe_markers, markers_to_extract=markers_to_extract)
+qualisys_extracted_data = extract_specific_markers(data_marker_dimension=qualisys_3d_data, list_of_markers=qualisys_markers, markers_to_extract=markers_to_extract)
+
+freemocap_dataframe = convert_3d_array_to_dataframe(data_3d_array=freemocap_extracted_data, data_marker_list=markers_to_extract)
+qualisys_dataframe = convert_3d_array_to_dataframe(data_3d_array=qualisys_extracted_data, data_marker_list=markers_to_extract)
+
+freemocap_dataframe['system'] = 'freemocap'
+qualisys_dataframe['system'] = 'qualisys'
+
+n = 100
+dataframe_of_3d_data = pd.concat([freemocap_dataframe, qualisys_dataframe], ignore_index=True)
+subsampled_df = dataframe_of_3d_data[dataframe_of_3d_data['frame'] % n == 0]
+
+
+marker_figure = create_marker_figure_from_dataframe(subsampled_df)
+marker_position_df = subsampled_df
+
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.LUX])
-
 load_figure_template('LUX')
-
-path_to_numpy_array = Path(r"D:\2023-06-07_JH\1.0_recordings\treadmill_calib\sesh_2023-06-07_12_38_16_JH_leg_length_neg_5_trial_1\output_data\mediapipe_body_3d_xyz.npy")
 color_of_cards = '#F3F5F7'
-
-marker_figure, marker_position_df = create_skeleton_figure(path_to_numpy_array)
-
 
 marker_figure.update_layout(paper_bgcolor=color_of_cards, plot_bgcolor=color_of_cards)
 
@@ -125,34 +151,32 @@ def display_trajectories(clickData, hoverData, marker_clicks, selected_marker, b
             updated_classnames.append('btn btn-info')  
         else:
             updated_classnames.append('btn btn-dark')
-
-    df_marker = marker_position_df[marker_position_df.marker == marker]
-
-    if df_marker.empty:
-        return marker, updated_classnames, None
-
-    # Check if the trigger was a hover event. If it was, do not update the plots
-    if "hoverData" in input_id:
-        return marker, updated_classnames, dash.no_update
-
-    # If the trigger was not a hover event, proceed with generating and returning the plots
     trajectory_plot_height = 350
-    fig_x = px.line(df_marker, x='frame', y='x')
-    fig_x.update_xaxes(title_text = '', showticklabels=False)
-    fig_x.update_yaxes(title_text='X', title_font=dict(size=18, ))
+
+    df_marker = dataframe_of_3d_data[dataframe_of_3d_data.marker == marker]
+
+    # Plotting for FreeMoCap and Qualisys
+    fig_x = px.line(df_marker, x='frame', y='x', color='system')
+    fig_y = px.line(df_marker, x='frame', y='y', color='system')
+    fig_z = px.line(df_marker, x='frame', y='z', color='system')
+
+    # Further layout and style adjustments
+    fig_x.update_xaxes(title_text='', showticklabels=False)
+    fig_x.update_yaxes(title_text='X', title_font=dict(size=18))
     fig_x.update_layout(paper_bgcolor=color_of_cards)
 
-    fig_y = px.line(df_marker, x='frame', y='y')
-    fig_y.update_xaxes(title_text = '',showticklabels=False)
-    fig_y.update_yaxes(title_text='Y', title_font=dict(size=18,))
-    fig_y.update_layout(margin=dict(t=5), paper_bgcolor=color_of_cards, height = trajectory_plot_height)
+    fig_y.update_xaxes(title_text='', showticklabels=False)
+    fig_y.update_yaxes(title_text='Y', title_font=dict(size=18))
+    fig_y.update_layout(paper_bgcolor=color_of_cards, height=trajectory_plot_height)
 
-    fig_z = px.line(df_marker, x='frame', y='z')
     fig_z.update_xaxes(title_text='Frame', title_font=dict(size=18))
     fig_z.update_yaxes(title_text='Z', title_font=dict(size=18))
-    fig_z.update_layout(margin=dict(t=5), paper_bgcolor=color_of_cards, height = trajectory_plot_height)
+    fig_z.update_layout(paper_bgcolor=color_of_cards, height=trajectory_plot_height)
 
     return marker, updated_classnames, [dcc.Graph(figure=fig_x), dcc.Graph(figure=fig_y), dcc.Graph(figure=fig_z)]
 
+
 if __name__ == '__main__':
     app.run_server(debug=False)
+
+

@@ -114,7 +114,7 @@ def create_skeleton_figure(path_to_numpy_array):
 
     data = np.load(path_to_numpy_array)
 
-    data = data[0:200, :, :]
+    data = data[:, :, :]
 
     mediapipe_skeleton = build_skeleton(data, mediapipe_indices, mediapipe_connections)
 
