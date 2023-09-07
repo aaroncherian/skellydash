@@ -16,6 +16,7 @@ from dash_bootstrap_templates import load_figure_template
 import json
 
 import plotly.express as px
+import plotly.graph_objects as go
 
 path_to_freemocap_array = Path(r"D:\2023-05-17_MDN_NIH_data\1.0_recordings\calib_3\sesh_2023-05-17_14_53_48_MDN_NIH_Trial3\output_data\mediapipe_body_3d_xyz_transformed.npy")
 path_to_qualisys_array = r"D:\2023-05-17_MDN_NIH_data\1.0_recordings\calib_3\qualisys_MDN_NIH_Trial3\output_data\clipped_qualisys_skel_3d.npy"
@@ -48,6 +49,22 @@ load_figure_template('LUX')
 color_of_cards = '#F3F5F7'
 
 marker_figure.update_layout(paper_bgcolor=color_of_cards, plot_bgcolor=color_of_cards)
+
+rmse_total = 20
+rmse_x = 10
+rmse_y = 5
+rmse_z = 5
+
+
+def create_gauge(value, title):
+    fig = go.Figure(go.Indicator(
+        mode="gauge+number",
+        value=value,
+        title={'text': title},
+        gauge={'axis': {'range': [None, 100]},
+               'bar': {'color': 'blue'}}))
+    fig.update_layout(margin=dict(l=10, r=10, b=10, t=20))
+    return fig
 
 
 # create list of marker names
@@ -115,14 +132,28 @@ app.layout = dbc.Container([
             ], style={'height': '100vh'}),
             md=5
         )
+    ]),
+    dbc.Row(
+        dbc.Card([
+            dbc.CardHeader(
+                html.H2("RMSE", className="text-primary")
+        ),
+        dbc.CardBody([
+            html.Div(id='rmse-gauges', style={'display': 'flex'}),
+        ],
+        )
     ])
+    )
 ], fluid=True)
 
 
 @app.callback(
+        
     [Output('selected-marker', 'children'),
      Output({'type': 'marker-button', 'index': ALL}, 'className'),
-     Output('trajectory-plots', 'children')],
+     Output('trajectory-plots', 'children'),
+     Output('rmse-gauges', 'children')  # New Output
+     ],
     [Input('main-graph', 'clickData'),
      Input('main-graph', 'hoverData'),  # New Input for hoverData
      Input({'type': 'marker-button', 'index': ALL}, 'n_clicks')],
@@ -173,7 +204,14 @@ def display_trajectories(clickData, hoverData, marker_clicks, selected_marker, b
     fig_z.update_yaxes(title_text='Z', title_font=dict(size=18))
     fig_z.update_layout(paper_bgcolor=color_of_cards, height=trajectory_plot_height)
 
-    return marker, updated_classnames, [dcc.Graph(figure=fig_x), dcc.Graph(figure=fig_y), dcc.Graph(figure=fig_z)]
+    gauges = [
+        dcc.Graph(figure=create_gauge(rmse_total, "Total RMSE"), style={'width': '25%'}),
+        dcc.Graph(figure=create_gauge(rmse_x, "X RMSE"), style={'width': '25%'}),
+        dcc.Graph(figure=create_gauge(rmse_y, "Y RMSE"), style={'width': '25%'}),
+        dcc.Graph(figure=create_gauge(rmse_z, "Z RMSE"), style={'width': '25%'})
+    ]
+
+    return marker, updated_classnames, [dcc.Graph(figure=fig_x), dcc.Graph(figure=fig_y), dcc.Graph(figure=fig_z)], gauges
 
 
 if __name__ == '__main__':
