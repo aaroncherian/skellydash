@@ -156,9 +156,9 @@ def display_trajectories(clickData, hoverData, marker_clicks, selected_marker, b
     df_marker = dataframe_of_3d_data[dataframe_of_3d_data.marker == marker]
 
     # Plotting for FreeMoCap and Qualisys
-    fig_x = px.line(df_marker, x='frame', y='x', color='system')
-    fig_y = px.line(df_marker, x='frame', y='y', color='system')
-    fig_z = px.line(df_marker, x='frame', y='z', color='system')
+    fig_x = px.line(df_marker, x='frame', y='x', color='system', color_discrete_map={'freemocap': 'blue', 'qualisys': 'red'})
+    fig_y = px.line(df_marker, x='frame', y='y', color='system', color_discrete_map={'freemocap': 'blue', 'qualisys': 'red'})
+    fig_z = px.line(df_marker, x='frame', y='z', color='system', color_discrete_map={'freemocap': 'blue', 'qualisys': 'red'})
 
     # Further layout and style adjustments
     fig_x.update_xaxes(title_text='', showticklabels=False)
