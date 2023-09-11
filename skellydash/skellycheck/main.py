@@ -1,4 +1,5 @@
 from dash import Dash, dcc, html, Output, Input, State, ALL
+import dash
 import dash_bootstrap_components as dbc
 from dash.exceptions import PreventUpdate
 from dash_bootstrap_templates import load_figure_template
@@ -10,16 +11,21 @@ from layout_components import get_layout
 from callback_utils import get_selected_marker, update_marker_buttons, create_trajectory_plots
 
 from pathlib import Path
+
+import json
+import plotly.express as px
 # Load and process data
 try:
 
     path_to_freemocap_array = Path(r"D:\2023-05-17_MDN_NIH_data\1.0_recordings\calib_3\sesh_2023-05-17_14_53_48_MDN_NIH_Trial3\output_data\mediapipe_body_3d_xyz_transformed.npy")
-    path_to_qualisys_array = r"D:\2023-05-17_MDN_NIH_data\1.0_recordings\calib_3\qualisys_MDN_NIH_Trial3\output_data\clipped_qualisys_skel_3d.npy"
+    path_to_qualisys_array = Path(r"D:\2023-05-17_MDN_NIH_data\1.0_recordings\calib_3\qualisys_MDN_NIH_Trial3\output_data\clipped_qualisys_skel_3d.npy")
 
     dataframe_of_3d_data = load_and_process_data(path_to_freemocap_array, path_to_qualisys_array)
 except Exception as e:
     print(f"An error occurred: {e}")
     raise
+
+
 
 app = Dash(__name__, external_stylesheets=[dbc.themes.LUX])
 load_figure_template('LUX')
@@ -38,9 +44,9 @@ rmse_values = {
 }
 gauges = create_gauges_UI(rmse_values)
 # Create gauge figures
-
+marker_list = display_marker_list(dataframe_of_3d_data)
 # Set the layout
-app.layout = get_layout(marker_figure, gauges, color_of_cards)
+app.layout = get_layout(marker_figure,marker_list, gauges, color_of_cards)
 
 
 @app.callback(
@@ -54,23 +60,17 @@ app.layout = get_layout(marker_figure, gauges, color_of_cards)
      State({'type': 'marker-button', 'index': ALL}, 'id')]
 )
 
-@app.callback(
-    [Output('selected-marker', 'children'),
-     Output({'type': 'marker-button', 'index': ALL}, 'className'),
-     Output('trajectory-plots', 'children')],
-    [Input('main-graph', 'clickData'),
-     Input('main-graph', 'hoverData'),
-     Input({'type': 'marker-button', 'index': ALL}, 'n_clicks')],
-    [State('selected-marker', 'children'),
-     State({'type': 'marker-button', 'index': ALL}, 'id')]
-)
 def display_trajectories(clickData, hoverData, marker_clicks, selected_marker, button_ids):
-    marker = get_selected_marker(clickData, hoverData, selected_marker)
+    ctx = dash.callback_context
+    if not ctx.triggered:
+        return dash.no_update
+    
+    input_id = ctx.triggered[0]['prop_id'].split('.')[0]
+    
+    marker = get_selected_marker(input_id, clickData, hoverData, selected_marker)
     updated_classnames = update_marker_buttons(marker, button_ids, hoverData)
     trajectory_plots = create_trajectory_plots(marker, dataframe_of_3d_data, color_of_cards)
     
     return marker, updated_classnames, trajectory_plots
-
-
 if __name__ == '__main__':
     app.run_server(debug=False)

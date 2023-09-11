@@ -168,6 +168,7 @@ app.layout = dbc.Container([
      State({'type': 'marker-button', 'index': ALL}, 'id')]
 )
 def display_trajectories(clickData, hoverData, marker_clicks, selected_marker, button_ids):
+    
     ctx = dash.callback_context
     if not ctx.triggered:
         return dash.no_update

@@ -1,15 +1,9 @@
 import json
-from dash import dash
+import dash
 import plotly.express as px
 from dash import dcc
 
-def get_selected_marker(clickData, hoverData, selected_marker):
-    ctx = dash.callback_context
-    if not ctx.triggered:
-        return dash.no_update
-    else:
-        input_id = ctx.triggered[0]['prop_id'].split('.')[0]
-    
+def get_selected_marker(input_id, clickData, hoverData, selected_marker):
     if 'marker-button' in input_id:
         marker = json.loads(input_id)['index']
     elif clickData is not None and 'points' in clickData and len(clickData['points']) > 0 and 'id' in clickData['points'][0]:
