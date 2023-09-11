@@ -49,28 +49,36 @@ marker_list = display_marker_list(dataframe_of_3d_data)
 app.layout = get_layout(marker_figure,marker_list, gauges, color_of_cards)
 
 
+# Define a Dash callback that listens to multiple inputs and updates multiple outputs
 @app.callback(
-    [Output('selected-marker', 'children'),
-     Output({'type': 'marker-button', 'index': ALL}, 'className'),
-     Output('trajectory-plots', 'children')],
-    [Input('main-graph', 'clickData'),
-     Input('main-graph', 'hoverData'),
-     Input({'type': 'marker-button', 'index': ALL}, 'n_clicks')],
-    [State('selected-marker', 'children'),
-     State({'type': 'marker-button', 'index': ALL}, 'id')]
+    [Output('selected-marker', 'children'),  # Output 1: Change the text displaying the selected marker
+     Output({'type': 'marker-button', 'index': ALL}, 'className'),  # Output 2: Update the class names of all marker buttons
+     Output('trajectory-plots', 'children')],  # Output 3: Update the trajectory plots
+    [Input('main-graph', 'clickData'),  # Input 1: Listen for clicks on the main graph
+     Input('main-graph', 'hoverData'),  # Input 2: Listen for hover events on the main graph
+     Input({'type': 'marker-button', 'index': ALL}, 'n_clicks')],  # Input 3: Listen for clicks on any marker button
+    [State('selected-marker', 'children'),  # State 1: The currently selected marker
+     State({'type': 'marker-button', 'index': ALL}, 'id')]  # State 2: The IDs of all marker buttons
 )
 
 def display_trajectories(clickData, hoverData, marker_clicks, selected_marker, button_ids):
+    # Retrieve information about which input triggered the callback
     ctx = dash.callback_context
+    # If the callback was not triggered, do not update anything
     if not ctx.triggered:
         return dash.no_update
-    
+    # Extract the input ID that triggered the callback
     input_id = ctx.triggered[0]['prop_id'].split('.')[0]
     
-    marker = get_selected_marker(input_id, clickData, hoverData, selected_marker)
+    # Determine the selected marker based on which input triggered the callback
+    marker = get_selected_marker(input_id, clickData, selected_marker)
+    # Update the class names of the marker buttons based on the selected marker
     updated_classnames = update_marker_buttons(marker, button_ids, hoverData)
+    # Create and update the trajectory plots based on the selected marker
     trajectory_plots = create_trajectory_plots(marker, dataframe_of_3d_data, color_of_cards)
     
+    # Return the updated information for the outputs
     return marker, updated_classnames, trajectory_plots
+
 if __name__ == '__main__':
     app.run_server(debug=False)
