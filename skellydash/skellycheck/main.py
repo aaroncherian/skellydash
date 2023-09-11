@@ -8,7 +8,7 @@ from data_utils.load_data import load_and_process_data
 from data_utils.sample_data import subsample_dataframe
 from plotting_utils import create_3d_scatter_from_dataframe, create_trajectory_plots
 from ui_components import create_gauges_UI, display_marker_list
-from layout_components import get_layout
+from layout.main_layout import get_layout
 from callback_utils import get_selected_marker, update_marker_buttons
 
 from pathlib import Path
