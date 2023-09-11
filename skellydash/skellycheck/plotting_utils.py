@@ -18,7 +18,7 @@ def create_gauge_plot(value, title):
 
 
 
-def create_marker_figure_from_dataframe(dataframe_of_3d_data, ax_range=1200):
+def create_3d_scatter_from_dataframe(dataframe_of_3d_data, ax_range=1200):
     x_mean = dataframe_of_3d_data["x"].mean()
     y_mean = dataframe_of_3d_data["y"].mean()
     z_mean = dataframe_of_3d_data["z"].mean()
@@ -43,9 +43,27 @@ def create_marker_figure_from_dataframe(dataframe_of_3d_data, ax_range=1200):
     )
     return fig
 
-def subsample_and_create_figure(dataframe_of_3d_data, n=100):
-        #downsample the data to make the 3D plot work faster (n is the downsampling factor)
-        subsampled_df = dataframe_of_3d_data[dataframe_of_3d_data['frame'] % n == 0]
-        marker_figure = create_marker_figure_from_dataframe(subsampled_df)
 
-        return marker_figure
+def create_trajectory_plots(marker, dataframe_of_3d_data, color_of_cards):
+    df_marker = dataframe_of_3d_data[dataframe_of_3d_data.marker == marker]
+    
+    trajectory_plot_height = 350
+    # Your plotting code here. For demonstration, using placeholders.
+    fig_x = px.line(df_marker, x='frame', y='x', color='system', color_discrete_map={'freemocap': 'blue', 'qualisys': 'red'})
+    fig_y = px.line(df_marker, x='frame', y='y', color='system', color_discrete_map={'freemocap': 'blue', 'qualisys': 'red'})
+    fig_z = px.line(df_marker, x='frame', y='z', color='system', color_discrete_map={'freemocap': 'blue', 'qualisys': 'red'})
+
+    fig_x.update_xaxes(title_text='', showticklabels=False)
+    fig_x.update_yaxes(title_text='X', title_font=dict(size=18))
+    fig_x.update_layout(paper_bgcolor=color_of_cards)
+
+    fig_y.update_xaxes(title_text='', showticklabels=False)
+    fig_y.update_yaxes(title_text='Y', title_font=dict(size=18))
+    fig_y.update_layout(paper_bgcolor=color_of_cards, height=trajectory_plot_height)
+
+    fig_z.update_xaxes(title_text='Frame', title_font=dict(size=18))
+    fig_z.update_yaxes(title_text='Z', title_font=dict(size=18))
+    fig_z.update_layout(paper_bgcolor=color_of_cards, height=trajectory_plot_height)
+
+    # Return the list of Plotly figures
+    return [dcc.Graph(figure=fig_x), dcc.Graph(figure=fig_y), dcc.Graph(figure=fig_z)]

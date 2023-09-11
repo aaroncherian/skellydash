@@ -1,19 +1,18 @@
-from dash import Dash, dcc, html, Output, Input, State, ALL
+from dash import Dash, Output, Input, State, ALL
 import dash
 import dash_bootstrap_components as dbc
-from dash.exceptions import PreventUpdate
+
 from dash_bootstrap_templates import load_figure_template
 
-from data_utils import load_and_process_data
-from plotting_utils import subsample_and_create_figure
+from data_utils.load_data import load_and_process_data
+from data_utils.sample_data import subsample_dataframe
+from plotting_utils import create_3d_scatter_from_dataframe, create_trajectory_plots
 from ui_components import create_gauges_UI, display_marker_list
 from layout_components import get_layout
-from callback_utils import get_selected_marker, update_marker_buttons, create_trajectory_plots
+from callback_utils import get_selected_marker, update_marker_buttons
 
 from pathlib import Path
 
-import json
-import plotly.express as px
 # Load and process data
 try:
 
@@ -33,7 +32,8 @@ color_of_cards = '#F3F5F7'
 
 
 # Create marker figure with subsampled data
-marker_figure = subsample_and_create_figure(dataframe_of_3d_data)
+subsampled_dataframe = subsample_dataframe(dataframe=dataframe_of_3d_data, frame_skip_interval=100)
+marker_figure = create_3d_scatter_from_dataframe(dataframe_of_3d_data=subsampled_dataframe)
 marker_figure.update_layout(paper_bgcolor=color_of_cards, plot_bgcolor=color_of_cards)
 
 rmse_values = {
