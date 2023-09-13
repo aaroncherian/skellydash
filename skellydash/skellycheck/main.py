@@ -6,7 +6,7 @@ from dash_bootstrap_templates import load_figure_template
 
 from data_utils.load_data import load_and_process_data
 from data_utils.sample_data import subsample_dataframe
-from plotting_utils import create_3d_scatter_from_dataframe, create_trajectory_plots, create_rmse_bar_plot
+from plotting_utils import create_3d_scatter_from_dataframe, create_trajectory_plots, create_rmse_bar_plot, create_error_plots
 from ui_components import create_gauges_UI, display_marker_list
 from layout.main_layout import get_layout
 from callback_utils import get_selected_marker, update_marker_buttons
@@ -21,8 +21,11 @@ try:
 
     dataframe_of_3d_data = load_and_process_data(path_to_freemocap_array, path_to_qualisys_array)
 
-    csv_path = r"D:\2023-05-17_MDN_NIH_data\1.0_recordings\calib_3\sesh_2023-05-17_14_53_48_MDN_NIH_Trial3\output_data\rmse_dataframe.csv"
-    rmse_error_daframe = pd.read_csv(csv_path)
+    rmse_csv_path = r"D:\2023-05-17_MDN_NIH_data\1.0_recordings\calib_3\sesh_2023-05-17_14_53_48_MDN_NIH_Trial3\output_data\rmse_dataframe.csv"
+    rmse_error_daframe = pd.read_csv(rmse_csv_path)
+
+    absolute_error_csv_path = r"D:\2023-05-17_MDN_NIH_data\1.0_recordings\calib_3\sesh_2023-05-17_14_53_48_MDN_NIH_Trial3\output_data\absolute_error_dataframe.csv"
+    absolute_error_dataframe = pd.read_csv(absolute_error_csv_path)
 
 
 
@@ -67,8 +70,10 @@ app.layout = get_layout(marker_figure=marker_figure, joint_rmse_figure=joint_rms
 # Define a Dash callback that listens to multiple inputs and updates multiple outputs
 @app.callback(
     [Output('selected-marker', 'children'),  # Output 1: Change the text displaying the selected marker
+     Output('selected-marker-absolute-error', 'children'),
      Output({'type': 'marker-button', 'index': ALL}, 'className'),  # Output 2: Update the class names of all marker buttons
-     Output('trajectory-plots', 'children')],  # Output 3: Update the trajectory plots
+     Output('trajectory-plots', 'children'),  # Output 3: Update the trajectory plots
+     Output('error-plots', 'children')],  # Output 4: Update the error plots
     [Input('main-graph', 'clickData'),  # Input 1: Listen for clicks on the main graph
      Input('main-graph', 'hoverData'),  # Input 2: Listen for hover events on the main graph
      Input({'type': 'marker-button', 'index': ALL}, 'n_clicks')],  # Input 3: Listen for clicks on any marker button
@@ -91,9 +96,11 @@ def display_trajectories(clickData, hoverData, marker_clicks, selected_marker, b
     updated_classnames = update_marker_buttons(marker, button_ids, hoverData)
     # Create and update the trajectory plots based on the selected marker
     trajectory_plots = create_trajectory_plots(marker, dataframe_of_3d_data, color_of_cards)
+
+    error_plots = create_error_plots(marker, absolute_error_dataframe, color_of_cards)
     
     # Return the updated information for the outputs
-    return marker, updated_classnames, trajectory_plots
+    return marker, marker, updated_classnames, trajectory_plots, error_plots
 
 if __name__ == '__main__':
     app.run_server(debug=False)

@@ -85,3 +85,29 @@ def create_rmse_bar_plot(df):
         figures[dim] = fig
     
     return figures
+
+
+def create_error_plots(marker, absolute_error_dataframe, color_of_cards):
+    df_marker = absolute_error_dataframe[absolute_error_dataframe.marker == marker]
+
+    trajectory_plot_height = 500
+    
+    # Your plotting code for X, Y, and Z error over frames.
+    fig_x = px.line(df_marker, x='frame', y='x_error', title='X Error over Time')
+    fig_y = px.line(df_marker, x='frame', y='y_error', title='Y Error over Time')
+    fig_z = px.line(df_marker, x='frame', y='z_error', title='Z Error over Time')
+    
+    fig_x.update_xaxes(title_text='', showticklabels=False)
+    fig_x.update_yaxes(title_text='X', title_font=dict(size=18))
+    fig_x.update_layout(paper_bgcolor=color_of_cards)
+
+    fig_y.update_xaxes(title_text='', showticklabels=False)
+    fig_y.update_yaxes(title_text='Y', title_font=dict(size=18))
+    fig_y.update_layout(paper_bgcolor=color_of_cards, height=trajectory_plot_height)
+
+    fig_z.update_xaxes(title_text='Frame', title_font=dict(size=18))
+    fig_z.update_yaxes(title_text='Z', title_font=dict(size=18))
+    fig_z.update_layout(paper_bgcolor=color_of_cards, height=trajectory_plot_height)
+
+    
+    return [dcc.Graph(figure=fig_x), dcc.Graph(figure=fig_y), dcc.Graph(figure=fig_z)]
