@@ -37,7 +37,9 @@ def get_layout(marker_figure, joint_rmse_figure, marker_list, gauges, color_of_c
         dbc.Row(
             get_rmse_card(gauges)
         ),
-        dbc.Row(
-            get_joint_rmse_plot_card(joint_rmse_figure, color_of_cards)
-        )
+        dbc.Row([
+            get_joint_rmse_plot_card(joint_rmse_figure['x_error'], 'X Dimension', color_of_cards),
+            get_joint_rmse_plot_card(joint_rmse_figure['y_error'], 'Y Dimension', color_of_cards),
+            get_joint_rmse_plot_card(joint_rmse_figure['z_error'], 'Z Dimension', color_of_cards),
+        ])
     ], fluid=True)
