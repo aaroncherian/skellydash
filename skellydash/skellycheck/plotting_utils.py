@@ -4,11 +4,10 @@ import plotly.graph_objects as go
 
 def create_gauge_plot(value, title):
     fig = go.Figure(go.Indicator(
-        mode="gauge+number",
+        mode="number",
         value=value,
         title={'text': title},
-        gauge={'axis': {'range': [None, 100]},
-               'bar': {'color': 'blue'}}))
+        ))
     fig.update_layout(margin=dict(l=10, r=10, b=10, t=20))
     return fig
 

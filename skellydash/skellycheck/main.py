@@ -12,7 +12,7 @@ from layout.main_layout import get_layout
 from callback_utils import get_selected_marker, update_marker_buttons
 
 from pathlib import Path
-
+import pandas as pd
 # Load and process data
 try:
 
@@ -20,6 +20,12 @@ try:
     path_to_qualisys_array = Path(r"D:\2023-05-17_MDN_NIH_data\1.0_recordings\calib_3\qualisys_MDN_NIH_Trial3\output_data\clipped_qualisys_skel_3d.npy")
 
     dataframe_of_3d_data = load_and_process_data(path_to_freemocap_array, path_to_qualisys_array)
+
+    csv_path = r"D:\2023-05-17_MDN_NIH_data\1.0_recordings\calib_3\sesh_2023-05-17_14_53_48_MDN_NIH_Trial3\output_data\rmse_dataframe.csv"
+    rmse_error_daframe = pd.read_csv(csv_path)
+
+
+
 except Exception as e:
     print(f"An error occurred: {e}")
     raise
@@ -36,11 +42,17 @@ subsampled_dataframe = subsample_dataframe(dataframe=dataframe_of_3d_data, frame
 marker_figure = create_3d_scatter_from_dataframe(dataframe_of_3d_data=subsampled_dataframe)
 marker_figure.update_layout(paper_bgcolor=color_of_cards, plot_bgcolor=color_of_cards)
 
+total_rmse = rmse_error_daframe.loc[(rmse_error_daframe['marker'] == 'All') & (rmse_error_daframe['coordinate'] == 'All'), 'RMSE'].values[0]
+x_rmse = rmse_error_daframe.loc[(rmse_error_daframe['marker'] == 'All') & (rmse_error_daframe['coordinate'] == 'x_error'), 'RMSE'].values[0]
+y_rmse = rmse_error_daframe.loc[(rmse_error_daframe['marker'] == 'All') & (rmse_error_daframe['coordinate'] == 'y_error'), 'RMSE'].values[0]
+z_rmse = rmse_error_daframe.loc[(rmse_error_daframe['marker'] == 'All') & (rmse_error_daframe['coordinate'] == 'z_error'), 'RMSE'].values[0]
+
+
 rmse_values = {
-    'total': 20,
-    'x': 10,
-    'y': 5,
-    'z': 5
+    'total': total_rmse,
+    'x': x_rmse,
+    'y': y_rmse,
+    'z': z_rmse
 }
 gauges = create_gauges_UI(rmse_values)
 # Create gauge figures

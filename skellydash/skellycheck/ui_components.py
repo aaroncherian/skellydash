@@ -10,6 +10,9 @@ def create_gauges_UI(rmse_values):
         dcc.Graph(figure=create_gauge_plot(rmse_values['z'], "Z RMSE"), style={'width': '25%'})
     ]
 
+def create_total_rmse_indicator(rmse_values):
+    return dcc.Graph(figure=create_gauge_plot(rmse_values['total'], "Total RMSE"), style={'width': '25%'})
+
 def display_marker_list(marker_position_df):
     unique_markers = sorted(marker_position_df['marker'].unique())
     marker_list = []
