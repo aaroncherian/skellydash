@@ -65,3 +65,12 @@ def create_trajectory_plots(marker, dataframe_of_3d_data, color_of_cards):
 
     # Return the list of Plotly figures
     return [dcc.Graph(figure=fig_x), dcc.Graph(figure=fig_y), dcc.Graph(figure=fig_z)]
+
+
+
+def create_rmse_bar_plot(rmse_dataframe):
+    fig = px.bar(rmse_dataframe[rmse_dataframe['dimension'] == 'Per Joint'],
+                 x='marker', y='RMSE', color='coordinate',
+                 title='RMSE for each marker',
+                 labels={'marker': 'Marker', 'RMSE': 'RMSE Value'})
+    return fig
