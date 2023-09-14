@@ -6,7 +6,7 @@ from dash_bootstrap_templates import load_figure_template
 
 from data_utils.load_data import load_and_process_data
 from data_utils.sample_data import subsample_dataframe
-from plotting_utils import create_3d_scatter_from_dataframe, create_trajectory_plots, create_rmse_bar_plot, create_error_plots
+from plotting_utils import create_3d_scatter_from_dataframe, create_trajectory_plots, create_rmse_bar_plot, create_error_plots, create_error_shading_plots
 from ui_components import create_gauges_UI, display_marker_list
 from layout.main_layout import get_layout
 from callback_utils import get_selected_marker, update_marker_buttons
@@ -73,7 +73,8 @@ app.layout = get_layout(marker_figure=marker_figure, joint_rmse_figure=joint_rms
      Output('selected-marker-absolute-error', 'children'),
      Output({'type': 'marker-button', 'index': ALL}, 'className'),  # Output 2: Update the class names of all marker buttons
      Output('trajectory-plots', 'children'),  # Output 3: Update the trajectory plots
-     Output('error-plots', 'children')],  # Output 4: Update the error plots
+     Output('error-plots', 'children'),  # Output 4: Update the error plots
+     Output('error-shading-plots', 'children')],  # Output 5: Update the error shading plots
     [Input('main-graph', 'clickData'),  # Input 1: Listen for clicks on the main graph
      Input('main-graph', 'hoverData'),  # Input 2: Listen for hover events on the main graph
      Input({'type': 'marker-button', 'index': ALL}, 'n_clicks')],  # Input 3: Listen for clicks on any marker button
@@ -82,25 +83,30 @@ app.layout = get_layout(marker_figure=marker_figure, joint_rmse_figure=joint_rms
 )
 
 def display_trajectories(clickData, hoverData, marker_clicks, selected_marker, button_ids):
-    # Retrieve information about which input triggered the callback
+    print("Callback triggered")
     ctx = dash.callback_context
-    # If the callback was not triggered, do not update anything
-    if not ctx.triggered:
-        return dash.no_update
-    # Extract the input ID that triggered the callback
-    input_id = ctx.triggered[0]['prop_id'].split('.')[0]
+    print(f"Context triggered by: {ctx.triggered}")
     
-    # Determine the selected marker based on which input triggered the callback
+    if not ctx.triggered:
+        print("No trigger found")
+        return dash.no_update
+    
+    input_id = ctx.triggered[0]['prop_id'].split('.')[0]
+    print(f"Input ID: {input_id}")
+
     marker = get_selected_marker(input_id, clickData, selected_marker)
+    print(f"Selected marker: {marker}")
     # Update the class names of the marker buttons based on the selected marker
     updated_classnames = update_marker_buttons(marker, button_ids, hoverData)
-    # Create and update the trajectory plots based on the selected marker
+    # Create and update the trajectory plots based on the selected markerAgain, 
     trajectory_plots = create_trajectory_plots(marker, dataframe_of_3d_data, color_of_cards)
 
     error_plots = create_error_plots(marker, absolute_error_dataframe, color_of_cards)
+
+    trajectory_with_error_plots = create_error_shading_plots(marker, dataframe_of_3d_data, absolute_error_dataframe, color_of_cards)
     
     # Return the updated information for the outputs
-    return marker, marker, updated_classnames, trajectory_plots, error_plots
+    return marker, marker, updated_classnames, trajectory_plots, error_plots,trajectory_with_error_plots
 
 if __name__ == '__main__':
     app.run_server(debug=False)

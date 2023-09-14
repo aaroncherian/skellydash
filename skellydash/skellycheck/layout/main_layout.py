@@ -6,7 +6,7 @@ from .cards.scatter_plot_card import get_scatter_plot_card
 from .cards.rmse_card import get_rmse_card
 from .cards.joint_rmse_plot_card import get_joint_rmse_plot_card
 from .cards.absolute_error_plot_card import get_absolute_error_plots_card
-
+from .cards.error_shading_plot_card import get_error_shading_plot_card
 
 
 def get_layout(marker_figure, joint_rmse_figure, marker_list, gauges, color_of_cards):
@@ -31,6 +31,9 @@ def get_layout(marker_figure, joint_rmse_figure, marker_list, gauges, color_of_c
         ]),
         dbc.Row([
             get_absolute_error_plots_card(color_of_cards)
-        ])
+        ]),
+        dbc.Row([
+            get_error_shading_plot_card(color_of_cards)
+        ]),
 
     ], fluid=True)
