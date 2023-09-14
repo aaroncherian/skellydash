@@ -18,15 +18,11 @@ def get_selected_marker(input_id, clickData, selected_marker):
     
     return marker
 
-def update_marker_buttons(marker, button_ids, hoverData):
-    # Check if hoverData is valid and contains point information
-    hover_condition = (hoverData is not None and 'points' in hoverData and  
-                       len(hoverData['points']) > 0 and 'id' in hoverData['points'][0])
-    
+def update_marker_buttons(marker, button_ids):
+
     # Use list comprehension to construct updated_classnames
     updated_classnames = [
-        'btn btn-warning' if button_id['index'] == marker else
-        'btn btn-info' if hover_condition and button_id['index'] == hoverData['points'][0]['id'] else
+        'btn btn-info' if button_id['index'] == marker else
         'btn btn-dark'
         for button_id in button_ids
     ]

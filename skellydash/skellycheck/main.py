@@ -76,13 +76,12 @@ app.layout = get_layout(marker_figure=marker_figure, joint_rmse_figure=joint_rms
      Output('error-plots', 'children'),  # Output 4: Update the error plots
      Output('error-shading-plots', 'children')],  # Output 5: Update the error shading plots
     [Input('main-graph', 'clickData'),  # Input 1: Listen for clicks on the main graph
-     Input('main-graph', 'hoverData'),  # Input 2: Listen for hover events on the main graph
      Input({'type': 'marker-button', 'index': ALL}, 'n_clicks')],  # Input 3: Listen for clicks on any marker button
     [State('selected-marker', 'children'),  # State 1: The currently selected marker
      State({'type': 'marker-button', 'index': ALL}, 'id')]  # State 2: The IDs of all marker buttons
 )
 
-def display_trajectories(clickData, hoverData, marker_clicks, selected_marker, button_ids):
+def display_trajectories(clickData, marker_clicks, selected_marker, button_ids):
     print("Callback triggered")
     ctx = dash.callback_context
     print(f"Context triggered by: {ctx.triggered}")
@@ -97,7 +96,7 @@ def display_trajectories(clickData, hoverData, marker_clicks, selected_marker, b
     marker = get_selected_marker(input_id, clickData, selected_marker)
     print(f"Selected marker: {marker}")
     # Update the class names of the marker buttons based on the selected marker
-    updated_classnames = update_marker_buttons(marker, button_ids, hoverData)
+    updated_classnames = update_marker_buttons(marker, button_ids)
     # Create and update the trajectory plots based on the selected markerAgain, 
     trajectory_plots = create_trajectory_plots(marker, dataframe_of_3d_data, color_of_cards)
 
