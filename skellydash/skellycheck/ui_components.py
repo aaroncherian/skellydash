@@ -14,7 +14,7 @@ def create_total_rmse_indicator(rmse_values):
     return dcc.Graph(figure=create_gauge_plot(rmse_values['total'], "Total RMSE"), style={'width': '25%'})
 
 def display_marker_list(marker_position_df):
-    unique_markers = sorted(marker_position_df['marker'].unique())
+    unique_markers = marker_position_df['marker'].unique()
     marker_list = []
     for idx, marker in enumerate(unique_markers):
         marker_list.append(

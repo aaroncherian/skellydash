@@ -64,7 +64,7 @@ marker_list = display_marker_list(dataframe_of_3d_data)
 
 joint_rmse_plot = create_rmse_bar_plot(rmse_error_daframe)
 
-app.layout = get_layout(marker_figure=marker_figure, joint_rmse_figure=joint_rmse_plot, marker_list=marker_list, gauges=gauges, color_of_cards=color_of_cards)
+app.layout = get_layout(marker_figure=marker_figure, joint_rmse_figure=joint_rmse_plot, list_of_marker_buttons=marker_list, gauges=gauges, color_of_cards=color_of_cards)
 
 
 # Define a Dash callback that listens to multiple inputs and updates multiple outputs
