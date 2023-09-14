@@ -49,6 +49,9 @@ def create_3d_scatter_from_dataframe(dataframe_of_3d_data, ax_range=1200):
         width=1100,
         margin={"t": 1, "b": 1, "l": 1, "r": 1},
     )
+
+    fig.layout.updatemenus[0].buttons[0].args[1]['frame']['duration'] = 1000 / 30
+
     return fig
 
 
