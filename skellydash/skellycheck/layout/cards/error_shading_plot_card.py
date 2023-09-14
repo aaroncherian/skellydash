@@ -5,7 +5,7 @@ from .create_card import create_card
 def get_error_shading_plot_card(color_of_cards):
     content = [
         html.H3(
-            id='selected-marker-error-shading',
+            id='selected-marker-shading-error',
             children="Select a marker",
             className="text-info"
         ),

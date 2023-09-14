@@ -71,6 +71,7 @@ app.layout = get_layout(marker_figure=marker_figure, joint_rmse_figure=joint_rms
 @app.callback(
     [Output('selected-marker', 'children'),  # Output 1: Change the text displaying the selected marker
      Output('selected-marker-absolute-error', 'children'),
+     Output('selected-marker-shading-error', 'children'),
      Output({'type': 'marker-button', 'index': ALL}, 'className'),  # Output 2: Update the class names of all marker buttons
      Output('trajectory-plots', 'children'),  # Output 3: Update the trajectory plots
      Output('error-plots', 'children'),  # Output 4: Update the error plots
@@ -105,7 +106,7 @@ def display_trajectories(clickData, marker_clicks, selected_marker, button_ids):
     trajectory_with_error_plots = create_error_shading_plots(marker, dataframe_of_3d_data, absolute_error_dataframe, color_of_cards)
     
     # Return the updated information for the outputs
-    return marker, marker, updated_classnames, trajectory_plots, error_plots,trajectory_with_error_plots
+    return marker, marker, marker, updated_classnames, trajectory_plots, error_plots,trajectory_with_error_plots
 
 if __name__ == '__main__':
     app.run_server(debug=False)
