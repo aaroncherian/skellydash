@@ -10,4 +10,4 @@ def get_absolute_error_plots_card(color_of_cards):
         ),
         html.Div(id='error-plots')
     ]
-    return create_card("Marker Error Analysis", content, color_of_cards)
+    return create_card("Absolute Error Per Frame", content, color_of_cards)
