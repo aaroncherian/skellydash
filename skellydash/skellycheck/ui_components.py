@@ -4,10 +4,10 @@ from plotting_utils import create_gauge_plot
 
 def create_gauges_UI(rmse_values):
     return [
-        dcc.Graph(figure=create_gauge_plot(rmse_values['total'], "Total RMSE"), style={'width': '25%'}),
-        dcc.Graph(figure=create_gauge_plot(rmse_values['x'], "X RMSE"), style={'width': '25%'}),
-        dcc.Graph(figure=create_gauge_plot(rmse_values['y'], "Y RMSE"), style={'width': '25%'}),
-        dcc.Graph(figure=create_gauge_plot(rmse_values['z'], "Z RMSE"), style={'width': '25%'})
+        dcc.Graph(figure=create_gauge_plot(rmse_values['total'], "Total RMSE"), style={'width': '100%'}),
+        dcc.Graph(figure=create_gauge_plot(rmse_values['x'], "X RMSE", color_of_text='red'), style={'width': '33%'}),
+        dcc.Graph(figure=create_gauge_plot(rmse_values['y'], "Y RMSE", color_of_text='green'), style={'width': '33%'}),
+        dcc.Graph(figure=create_gauge_plot(rmse_values['z'], "Z RMSE", color_of_text='blue'), style={'width': '33%'}),
     ]
 
 def create_total_rmse_indicator(rmse_values):
