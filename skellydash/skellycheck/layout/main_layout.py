@@ -41,7 +41,7 @@ def get_layout(marker_figure, joint_rmse_figure, list_of_marker_buttons, gauges,
                 get_error_shading_plot_card(color_of_cards)
             ]),
         ],
-        width={"size": 9, "order": "last"},
+        width={"size": 10, "order": "last"},
     )
 
     return dbc.Container([
