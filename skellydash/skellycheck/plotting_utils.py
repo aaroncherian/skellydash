@@ -82,6 +82,9 @@ def create_rmse_bar_plot(df):
     dimensions = ['x_error', 'y_error', 'z_error']
     figures = {}
     
+    # Calculate the maximum RMSE value across all dimensions
+    max_rmse = df['RMSE'].max()
+    
     for dim in dimensions:
         filtered_df = df[(df['dimension'] == 'Per Joint') & (df['coordinate'] == dim)]
         fig = go.Figure(data=[
@@ -90,7 +93,15 @@ def create_rmse_bar_plot(df):
         fig.update_layout(
             title=f'RMSE for each marker ({dim})',
             xaxis_title='Marker',
-            yaxis_title='RMSE Value'
+            yaxis_title='RMSE Value',
+            xaxis=dict(
+                tickfont=dict(
+                    size=18
+                )
+            ),
+            yaxis=dict(
+                range=[0, max_rmse+10]
+            )
         )
         figures[dim] = fig
     
@@ -163,7 +174,7 @@ def create_error_shading_plots(marker, dataframe_of_3d_data, absolute_error_data
     for dimension in ['x', 'y', 'z']:
         fig = go.Figure()
 
-        high_error_frames = find_continuous_segments(filtered_error_df.query(f"{dimension}_error > 65")['frame'].tolist())
+        high_error_frames = find_continuous_segments(filtered_error_df.query(f"{dimension}_error > 50")['frame'].tolist())
         low_error_frames = find_continuous_segments(filtered_error_df.query(f"{dimension}_error < 20")['frame'].tolist())
 
         bad_shapes = add_error_shapes(fig, high_error_frames, filtered_df[dimension].max(), "Red")
