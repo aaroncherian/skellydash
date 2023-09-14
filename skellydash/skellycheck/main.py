@@ -13,6 +13,7 @@ from callback_utils import get_selected_marker, update_marker_buttons
 
 from pathlib import Path
 import pandas as pd
+import numpy as np
 # Load and process data
 try:
 
@@ -41,7 +42,7 @@ color_of_cards = '#F3F5F7'
 
 
 # Create marker figure with subsampled data
-subsampled_dataframe = subsample_dataframe(dataframe=dataframe_of_3d_data, frame_skip_interval=100)
+subsampled_dataframe = subsample_dataframe(dataframe=dataframe_of_3d_data, frame_skip_interval=50)
 marker_figure = create_3d_scatter_from_dataframe(dataframe_of_3d_data=subsampled_dataframe)
 marker_figure.update_layout(paper_bgcolor=color_of_cards, plot_bgcolor=color_of_cards)
 
@@ -72,6 +73,10 @@ app.layout = get_layout(marker_figure=marker_figure, joint_rmse_figure=joint_rms
     [Output('selected-marker', 'children'),  # Output 1: Change the text displaying the selected marker
      Output('selected-marker-absolute-error', 'children'),
      Output('selected-marker-shading-error', 'children'),
+     Output('info-marker-name', 'children'),
+     Output('info-x-rmse', 'children'),
+     Output('info-y-rmse', 'children'),
+     Output('info-z-rmse', 'children'),
      Output({'type': 'marker-button', 'index': ALL}, 'className'),  # Output 2: Update the class names of all marker buttons
      Output('trajectory-plots', 'children'),  # Output 3: Update the trajectory plots
      Output('error-plots', 'children'),  # Output 4: Update the error plots
@@ -105,8 +110,17 @@ def display_trajectories(clickData, marker_clicks, selected_marker, button_ids):
 
     trajectory_with_error_plots = create_error_shading_plots(marker, dataframe_of_3d_data, absolute_error_dataframe, color_of_cards)
     
+    rmses_for_this_marker = rmse_error_daframe[rmse_error_daframe.marker == marker][['coordinate','RMSE']]
+
+    selected_data_indexed = rmses_for_this_marker.set_index('coordinate')
+    x_error_rmse = np.round(selected_data_indexed.at['x_error', 'RMSE'],2)
+    y_error_rmse = np.round(selected_data_indexed.at['y_error', 'RMSE'],2)
+    z_error_rmse = np.round(selected_data_indexed.at['z_error', 'RMSE'],2)
+
     # Return the updated information for the outputs
-    return marker, marker, marker, updated_classnames, trajectory_plots, error_plots,trajectory_with_error_plots
+    return marker, marker, marker, marker, x_error_rmse, y_error_rmse, z_error_rmse, updated_classnames, trajectory_plots, error_plots,trajectory_with_error_plots
 
 if __name__ == '__main__':
+
     app.run_server(debug=False)
+    
