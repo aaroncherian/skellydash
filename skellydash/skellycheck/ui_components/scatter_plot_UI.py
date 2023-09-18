@@ -1,5 +1,5 @@
 from data_utils.sample_data import subsample_dataframe
-from plotting_utils import create_3d_scatter_from_dataframe
+from plotting.scatter_plot_3d import create_3d_scatter_from_dataframe
 
 def create_3d_figure_from_subsampled_data(dataframe_of_3d_data, frame_skip_interval, color_of_cards):
     """Create marker figure with subsampled data"""

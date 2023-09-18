@@ -1,36 +1,5 @@
-import plotly.express as px
-from dash import dcc
 import plotly.graph_objects as go
-
-
-def create_trajectory_plots(marker, dataframe_of_3d_data, color_of_cards):
-    df_marker = dataframe_of_3d_data[dataframe_of_3d_data.marker == marker]
-    
-    trajectory_plot_height = 350
-    # Your plotting code here. For demonstration, using placeholders.
-    fig_x = px.line(df_marker, x='frame', y='x', color='system', color_discrete_map={'freemocap': 'blue', 'qualisys': 'red'}, render_mode='svg')
-    fig_y = px.line(df_marker, x='frame', y='y', color='system', color_discrete_map={'freemocap': 'blue', 'qualisys': 'red'}, render_mode='svg')
-    fig_z = px.line(df_marker, x='frame', y='z', color='system', color_discrete_map={'freemocap': 'blue', 'qualisys': 'red'}, render_mode='svg')
-
-    fig_x.update_xaxes(title_text='', showticklabels=False)
-    fig_x.update_yaxes(title_text='X', title_font=dict(size=18))
-    fig_x.update_layout(paper_bgcolor=color_of_cards)
-
-    fig_y.update_xaxes(title_text='', showticklabels=False)
-    fig_y.update_yaxes(title_text='Y', title_font=dict(size=18))
-    fig_y.update_layout(paper_bgcolor=color_of_cards, height=trajectory_plot_height)
-
-    fig_z.update_xaxes(title_text='Frame', title_font=dict(size=18))
-    fig_z.update_yaxes(title_text='Z', title_font=dict(size=18))
-    fig_z.update_layout(paper_bgcolor=color_of_cards, height=trajectory_plot_height)
-
-    # Return the list of Plotly figures
-    return [dcc.Graph(figure=fig_x), dcc.Graph(figure=fig_y), dcc.Graph(figure=fig_z)]
-
-
-
-
-
+from dash import dcc
 
 
 def find_continuous_segments(frames):
@@ -46,7 +15,7 @@ def find_continuous_segments(frames):
 
     return segments
 
-def add_error_shapes(fig, frames, max_value, color):
+def add_error_shapes(frames, max_value, color):
     shapes = []
     for start, end in frames:
         shapes.append(dict(type="rect",
@@ -60,7 +29,7 @@ def add_error_shapes(fig, frames, max_value, color):
                 line_width=0,))
     return shapes
 
-def create_error_shading_plots(marker, dataframe_of_3d_data, absolute_error_dataframe, color_of_cards):
+def create_shaded_error_plots(marker, dataframe_of_3d_data, absolute_error_dataframe, color_of_cards):
     """
     Plot FreeMoCap trajectories for a specific marker with error shading.
     """
@@ -77,8 +46,8 @@ def create_error_shading_plots(marker, dataframe_of_3d_data, absolute_error_data
         high_error_frames = find_continuous_segments(filtered_error_df.query(f"{dimension}_error > 50")['frame'].tolist())
         low_error_frames = find_continuous_segments(filtered_error_df.query(f"{dimension}_error < 20")['frame'].tolist())
 
-        bad_shapes = add_error_shapes(fig, high_error_frames, filtered_df[dimension].max(), "Red")
-        good_shapes = add_error_shapes(fig, low_error_frames, filtered_df[dimension].max(), "Green")
+        bad_shapes = add_error_shapes(high_error_frames, filtered_df[dimension].max(), "Red")
+        good_shapes = add_error_shapes(low_error_frames, filtered_df[dimension].max(), "Green")
 
         fig.add_trace(go.Scatter(x=filtered_df['frame'], y=filtered_df[dimension], mode='lines', name=f'{dimension.upper()} trajectory'))
 

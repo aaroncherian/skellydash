@@ -5,7 +5,9 @@ import dash_bootstrap_components as dbc
 from dash_bootstrap_templates import load_figure_template
 
 from data_utils.load_data import combine_freemocap_and_qualisys_into_dataframe
-from plotting_utils import create_trajectory_plots, create_error_plots, create_error_shading_plots
+from plotting.absolute_error_plots import create_absolute_error_plots
+from plotting.joint_trajectory_plots import create_joint_trajectory_plots
+from plotting.shaded_error_plots import create_shaded_error_plots
 from ui_components.dashboard import prepare_dashboard_elements
 from layout.main_layout import get_layout
 from callback_utils import get_selected_marker, update_marker_buttons
@@ -104,11 +106,11 @@ def generate_dash_app(dataframe_of_3d_data, rmse_error_dataframe, absolute_error
         # Update the class names of the marker buttons based on the selected marker
         updated_classnames = update_marker_buttons(marker, button_ids)
         # Create and update the trajectory plots based on the selected markerAgain, 
-        trajectory_plots = create_trajectory_plots(marker, dataframe_of_3d_data, COLOR_OF_CARDS)
+        trajectory_plots = create_joint_trajectory_plots(marker, dataframe_of_3d_data, COLOR_OF_CARDS)
 
-        error_plots = create_error_plots(marker, absolute_error_dataframe, COLOR_OF_CARDS)
+        error_plots = create_absolute_error_plots(marker, absolute_error_dataframe, COLOR_OF_CARDS)
 
-        trajectory_with_error_plots = create_error_shading_plots(marker, dataframe_of_3d_data, absolute_error_dataframe, COLOR_OF_CARDS)
+        trajectory_with_error_plots = create_shaded_error_plots(marker, dataframe_of_3d_data, absolute_error_dataframe, COLOR_OF_CARDS)
         
         rmses_for_this_marker = rmse_error_daframe[rmse_error_daframe.marker == marker][['coordinate','RMSE']]
 
