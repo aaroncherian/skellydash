@@ -5,7 +5,6 @@ import dash_bootstrap_components as dbc
 from dash_bootstrap_templates import load_figure_template
 
 from data_utils.load_data import combine_freemocap_and_qualisys_into_dataframe
-from data_utils.sample_data import subsample_dataframe
 from plotting_utils import create_trajectory_plots, create_error_plots, create_error_shading_plots
 from ui_components.dashboard import prepare_dashboard_elements
 from layout.main_layout import get_layout
