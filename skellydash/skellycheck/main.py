@@ -5,10 +5,8 @@ import dash_bootstrap_components as dbc
 from dash_bootstrap_templates import load_figure_template
 
 from data_utils.load_data import combine_freemocap_and_qualisys_into_dataframe
-from plotting.absolute_error_plots import create_absolute_error_plots
-from plotting.joint_trajectory_plots import create_joint_trajectory_plots
-from plotting.shaded_error_plots import create_shaded_error_plots
-from ui_components.dashboard import prepare_dashboard_elements
+
+from ui_components.dashboard import prepare_dashboard_elements, update_joint_plots
 from layout.main_layout import get_layout
 from callback_utils import get_selected_marker, update_marker_buttons
 
@@ -105,22 +103,18 @@ def generate_dash_app(dataframe_of_3d_data, rmse_error_dataframe, absolute_error
         print(f"Selected marker: {marker}")
         # Update the class names of the marker buttons based on the selected marker
         updated_classnames = update_marker_buttons(marker, button_ids)
-        # Create and update the trajectory plots based on the selected markerAgain, 
-        trajectory_plots = create_joint_trajectory_plots(marker, dataframe_of_3d_data, COLOR_OF_CARDS)
 
-        error_plots = create_absolute_error_plots(marker, absolute_error_dataframe, COLOR_OF_CARDS)
-
-        trajectory_with_error_plots = create_shaded_error_plots(marker, dataframe_of_3d_data, absolute_error_dataframe, COLOR_OF_CARDS)
+        # Create and update joint/marker plots based on the selected marker
+        trajectory_plots,absolute_error_plots, shaded_error_plots =  update_joint_plots(marker, dataframe_of_3d_data, absolute_error_dataframe, COLOR_OF_CARDS)
         
         rmses_for_this_marker = rmse_error_daframe[rmse_error_daframe.marker == marker][['coordinate','RMSE']]
-
         selected_data_indexed = rmses_for_this_marker.set_index('coordinate')
         x_error_rmse = np.round(selected_data_indexed.at['x_error', 'RMSE'],2)
         y_error_rmse = np.round(selected_data_indexed.at['y_error', 'RMSE'],2)
         z_error_rmse = np.round(selected_data_indexed.at['z_error', 'RMSE'],2)
 
         # Return the updated information for the outputs
-        return marker, marker, marker, marker, x_error_rmse, y_error_rmse, z_error_rmse, updated_classnames, trajectory_plots, error_plots,trajectory_with_error_plots
+        return marker, marker, marker, marker, x_error_rmse, y_error_rmse, z_error_rmse, updated_classnames, trajectory_plots, absolute_error_plots,shaded_error_plots
 
     app.run_server(debug=False)
 
