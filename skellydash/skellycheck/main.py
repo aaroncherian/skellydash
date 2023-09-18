@@ -6,16 +6,19 @@ from dash_bootstrap_templates import load_figure_template
 
 from data_utils.load_data import combine_freemocap_and_qualisys_into_dataframe
 from data_utils.sample_data import subsample_dataframe
-from plotting_utils import create_3d_scatter_from_dataframe, create_trajectory_plots, create_rmse_bar_plot, create_error_plots, create_error_shading_plots
-from ui_components import create_gauges_UI, display_marker_list
+from plotting_utils import create_trajectory_plots, create_error_plots, create_error_shading_plots
+from ui_components.dashboard import prepare_dashboard_elements
 from layout.main_layout import get_layout
 from callback_utils import get_selected_marker, update_marker_buttons
+
 
 from pathlib import Path
 import pandas as pd
 import numpy as np
-# Load and process data
 
+COLOR_OF_CARDS = '#F3F5F7'
+FRAME_SKIP_INTERVAL = 50
+# Load and process data
 class FileManager:
     def __init__(self, path_to_recording_folder: Path):
         self.path_to_recording_folder = path_to_recording_folder
@@ -54,38 +57,16 @@ class FileManager:
 
 
 
-
-def generate_dash_app(dataframe_of_3d_data, rmse_error_daframe, absolute_error_dataframe):
+def generate_dash_app(dataframe_of_3d_data, rmse_error_dataframe, absolute_error_dataframe):
+    # Initialize Dash App
     app = Dash(__name__, external_stylesheets=[dbc.themes.LUX])
     load_figure_template('LUX')
-    color_of_cards = '#F3F5F7'
 
+    # Create Figures and Components
+    
+    scatter_3d_figure, indicators, marker_buttons_list, joint_rmse_plot= prepare_dashboard_elements(dataframe_of_3d_data, rmse_error_dataframe, FRAME_SKIP_INTERVAL, COLOR_OF_CARDS)
 
-    # Create marker figure with subsampled data
-    subsampled_dataframe = subsample_dataframe(dataframe=dataframe_of_3d_data, frame_skip_interval=50)
-    marker_figure = create_3d_scatter_from_dataframe(dataframe_of_3d_data=subsampled_dataframe)
-    marker_figure.update_layout(paper_bgcolor=color_of_cards, plot_bgcolor=color_of_cards)
-
-    total_rmse = rmse_error_daframe.loc[(rmse_error_daframe['marker'] == 'All') & (rmse_error_daframe['coordinate'] == 'All'), 'RMSE'].values[0]
-    x_rmse = rmse_error_daframe.loc[(rmse_error_daframe['marker'] == 'All') & (rmse_error_daframe['coordinate'] == 'x_error'), 'RMSE'].values[0]
-    y_rmse = rmse_error_daframe.loc[(rmse_error_daframe['marker'] == 'All') & (rmse_error_daframe['coordinate'] == 'y_error'), 'RMSE'].values[0]
-    z_rmse = rmse_error_daframe.loc[(rmse_error_daframe['marker'] == 'All') & (rmse_error_daframe['coordinate'] == 'z_error'), 'RMSE'].values[0]
-
-
-    rmse_values = {
-        'total': total_rmse,
-        'x': x_rmse,
-        'y': y_rmse,
-        'z': z_rmse
-    }
-    gauges = create_gauges_UI(rmse_values)
-    # Create gauge figures
-    marker_list = display_marker_list(dataframe_of_3d_data)
-    # Set the layout
-
-    joint_rmse_plot = create_rmse_bar_plot(rmse_error_daframe)
-
-    app.layout = get_layout(marker_figure=marker_figure, joint_rmse_figure=joint_rmse_plot, list_of_marker_buttons=marker_list, gauges=gauges, color_of_cards=color_of_cards)
+    app.layout = get_layout(marker_figure=scatter_3d_figure, joint_rmse_figure=joint_rmse_plot, list_of_marker_buttons=marker_buttons_list, indicators=indicators, color_of_cards=COLOR_OF_CARDS)
 
 
     # Define a Dash callback that listens to multiple inputs and updates multiple outputs
@@ -124,11 +105,11 @@ def generate_dash_app(dataframe_of_3d_data, rmse_error_daframe, absolute_error_d
         # Update the class names of the marker buttons based on the selected marker
         updated_classnames = update_marker_buttons(marker, button_ids)
         # Create and update the trajectory plots based on the selected markerAgain, 
-        trajectory_plots = create_trajectory_plots(marker, dataframe_of_3d_data, color_of_cards)
+        trajectory_plots = create_trajectory_plots(marker, dataframe_of_3d_data, COLOR_OF_CARDS)
 
-        error_plots = create_error_plots(marker, absolute_error_dataframe, color_of_cards)
+        error_plots = create_error_plots(marker, absolute_error_dataframe, COLOR_OF_CARDS)
 
-        trajectory_with_error_plots = create_error_shading_plots(marker, dataframe_of_3d_data, absolute_error_dataframe, color_of_cards)
+        trajectory_with_error_plots = create_error_shading_plots(marker, dataframe_of_3d_data, absolute_error_dataframe, COLOR_OF_CARDS)
         
         rmses_for_this_marker = rmse_error_daframe[rmse_error_daframe.marker == marker][['coordinate','RMSE']]
 
@@ -141,6 +122,8 @@ def generate_dash_app(dataframe_of_3d_data, rmse_error_daframe, absolute_error_d
         return marker, marker, marker, marker, x_error_rmse, y_error_rmse, z_error_rmse, updated_classnames, trajectory_plots, error_plots,trajectory_with_error_plots
 
     app.run_server(debug=False)
+
+
 if __name__ == '__main__':
 
     path_to_recording_folder = Path(r"D:\2023-05-17_MDN_NIH_data\1.0_recordings\calib_3\sesh_2023-05-17_14_53_48_MDN_NIH_Trial3")

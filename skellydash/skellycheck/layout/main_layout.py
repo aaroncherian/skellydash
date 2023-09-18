@@ -9,7 +9,7 @@ from .cards.absolute_error_plot_card import get_absolute_error_plots_card
 from .cards.error_shading_plot_card import get_error_shading_plot_card
 
 
-def get_layout(marker_figure, joint_rmse_figure, list_of_marker_buttons, gauges, color_of_cards):
+def get_layout(marker_figure, joint_rmse_figure, list_of_marker_buttons, indicators, color_of_cards):
     sidebar = dbc.Col(
         [
             get_marker_buttons_card(list_of_marker_buttons, color_of_cards)
@@ -21,7 +21,7 @@ def get_layout(marker_figure, joint_rmse_figure, list_of_marker_buttons, gauges,
     main_content = dbc.Col(
         [
             dbc.Row(
-                get_rmse_card(gauges)
+                get_rmse_card(indicators)
             ),
             dbc.Row([
                 get_joint_rmse_plot_card(joint_rmse_figure['x_error'], 'X Dimension', color_of_cards),

@@ -81,34 +81,7 @@ def create_trajectory_plots(marker, dataframe_of_3d_data, color_of_cards):
 
 
 
-def create_rmse_bar_plot(df):
-    dimensions = ['x_error', 'y_error', 'z_error']
-    figures = {}
-    
-    # Calculate the maximum RMSE value across all dimensions
-    max_rmse = df['RMSE'].max()
-    
-    for dim in dimensions:
-        filtered_df = df[(df['dimension'] == 'Per Joint') & (df['coordinate'] == dim)]
-        fig = go.Figure(data=[
-            go.Bar(name=dim, x=filtered_df['marker'], y=filtered_df['RMSE'])
-        ])
-        fig.update_layout(
-            title=f'RMSE for each marker ({dim})',
-            xaxis_title='Marker',
-            yaxis_title='RMSE Value',
-            xaxis=dict(
-                tickfont=dict(
-                    size=18
-                )
-            ),
-            yaxis=dict(
-                range=[0, max_rmse+10]
-            )
-        )
-        figures[dim] = fig
-    
-    return figures
+
 
 
 def create_error_plots(marker, absolute_error_dataframe, color_of_cards):
