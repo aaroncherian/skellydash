@@ -9,6 +9,8 @@ from plotting.shaded_error_plots import create_shaded_error_plots
 
 import numpy as np
 
+#this page handles updating of anything that appears on the dashboard 
+
 def prepare_dashboard_elements(dataframe_of_3d_data, rmse_error_dataframe, frame_skip_interval, color_of_cards):
     """Prepare the figures and components for the Dash app layout."""
     scatter_3d_figure = create_3d_figure_from_subsampled_data(dataframe_of_3d_data, frame_skip_interval, color_of_cards)
