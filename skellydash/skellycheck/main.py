@@ -7,11 +7,10 @@ from dash_bootstrap_templates import load_figure_template
 from data_utils.load_data import combine_freemocap_and_qualisys_into_dataframe
 from data_utils.file_manager import FileManager
 
-from ui_components.dashboard import prepare_dashboard_elements, update_joint_plots, update_joint_marker_card
+from ui_components.dashboard import prepare_dashboard_elements, update_joint_plots, update_joint_marker_card, update_marker_buttons
 
 from layout.main_layout import get_layout
 
-from callback_utils import get_selected_marker, update_marker_buttons
 from callbacks.marker_name_callbacks import register_marker_name_callbacks
 from callbacks.selected_marker_callback import register_selected_marker_callback
 

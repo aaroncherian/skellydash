@@ -33,3 +33,15 @@ def update_joint_marker_card(selected_marker, rmse_error_dataframe):
     z_error_rmse = np.round(rmses_dataframe_with_coordinate_as_index.at['z_error', 'RMSE'],2)
 
     return x_error_rmse, y_error_rmse, z_error_rmse
+
+
+def update_marker_buttons(marker, button_ids):
+
+    # Use list comprehension to construct updated_classnames
+    updated_classnames = [
+        'btn btn-info' if button_id['index'] == marker else
+        'btn btn-dark'
+        for button_id in button_ids
+    ]
+    
+    return updated_classnames
