@@ -1,5 +1,5 @@
 import dash_bootstrap_components as dbc
-from dash import html
+from dash import html, dcc
 from .cards.marker_trajectory_card import get_marker_trajectory_card
 from .cards.marker_buttons_card import get_marker_buttons_card
 from .cards.scatter_plot_card import get_scatter_plot_card
@@ -53,10 +53,11 @@ def get_layout(marker_figure, joint_rmse_figure, list_of_marker_buttons, indicat
 )
 
 
+
     return dbc.Container([
+        dcc.Store(id='store-selected-marker'),  # Add the dcc.Store component here
         dbc.Row([sidebar, main_content, info_section]),
     ], fluid=True)
-
 
 
 def get_info_card(color_of_cards):
@@ -64,7 +65,7 @@ def get_info_card(color_of_cards):
         dbc.CardHeader("Selected Marker:"),
         dbc.CardBody(
             [
-                dbc.Row([dbc.Label(id='info-marker-name', className = 'text-info', style={'font-weight': 'bold'})]),
+                dbc.Row([dbc.Label(id='selected-marker-info-card', className = 'text-info', style={'font-weight': 'bold'})]),
                 dbc.Row([
                     dbc.Label("X RMSE:", className="card-text", style={'color':'darkred','font-weight': 'bold'}),
                     dbc.Label(id='info-x-rmse', className="card-text"),
