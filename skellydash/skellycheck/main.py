@@ -1,5 +1,5 @@
-import dash
-from dash import Dash, Output, Input, State, ALL, dcc
+
+from dash import Dash, Output, Input, State, ALL
 
 import dash_bootstrap_components as dbc
 from dash_bootstrap_templates import load_figure_template
@@ -14,7 +14,7 @@ from layout.main_layout import get_layout
 from callbacks.marker_name_callbacks import register_marker_name_callbacks
 from callbacks.selected_marker_callback import register_selected_marker_callback
 
-import numpy as np
+
 
 COLOR_OF_CARDS = '#F3F5F7'
 FRAME_SKIP_INTERVAL = 50
