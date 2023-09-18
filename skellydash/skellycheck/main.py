@@ -7,7 +7,8 @@ from dash_bootstrap_templates import load_figure_template
 from data_utils.load_data import combine_freemocap_and_qualisys_into_dataframe
 from data_utils.file_manager import FileManager
 
-from ui_components.dashboard import prepare_dashboard_elements, update_joint_plots
+from ui_components.dashboard import prepare_dashboard_elements, update_joint_plots, update_joint_marker_card
+
 
 from layout.main_layout import get_layout
 from callback_utils import get_selected_marker, update_marker_buttons
@@ -23,7 +24,6 @@ def generate_dash_app(dataframe_of_3d_data, rmse_error_dataframe, absolute_error
     load_figure_template('LUX')
 
     # Create Figures and Components
-    
     scatter_3d_figure, indicators, marker_buttons_list, joint_rmse_plot= prepare_dashboard_elements(dataframe_of_3d_data, rmse_error_dataframe, FRAME_SKIP_INTERVAL, COLOR_OF_CARDS)
 
     app.layout = get_layout(marker_figure=scatter_3d_figure, joint_rmse_figure=joint_rmse_plot, list_of_marker_buttons=marker_buttons_list, indicators=indicators, color_of_cards=COLOR_OF_CARDS)
@@ -68,14 +68,10 @@ def generate_dash_app(dataframe_of_3d_data, rmse_error_dataframe, absolute_error
         # Create and update joint/marker plots based on the selected marker
         trajectory_plots,absolute_error_plots, shaded_error_plots =  update_joint_plots(marker, dataframe_of_3d_data, absolute_error_dataframe, COLOR_OF_CARDS)
         
-        rmses_for_this_marker = rmse_error_daframe[rmse_error_daframe.marker == marker][['coordinate','RMSE']]
-        selected_data_indexed = rmses_for_this_marker.set_index('coordinate')
-        x_error_rmse = np.round(selected_data_indexed.at['x_error', 'RMSE'],2)
-        y_error_rmse = np.round(selected_data_indexed.at['y_error', 'RMSE'],2)
-        z_error_rmse = np.round(selected_data_indexed.at['z_error', 'RMSE'],2)
+        x_rmse, y_rmse, z_rmse = update_joint_marker_card(marker, rmse_error_dataframe)
 
         # Return the updated information for the outputs
-        return marker, marker, marker, marker, x_error_rmse, y_error_rmse, z_error_rmse, updated_classnames, trajectory_plots, absolute_error_plots,shaded_error_plots
+        return marker, marker, marker, marker, x_rmse, y_rmse, z_rmse, updated_classnames, trajectory_plots, absolute_error_plots,shaded_error_plots
 
     app.run_server(debug=False)
 
@@ -90,9 +86,9 @@ if __name__ == '__main__':
     file_manager = FileManager(path_to_recording_folder)
     freemocap_data = file_manager.freemocap_data
     qualisys_data = file_manager.qualisys_data
-    rmse_error_daframe = file_manager.rmse_error_dataframe
+    rmse_error_dataframe = file_manager.rmse_error_dataframe
     absolute_error_dataframe = file_manager.absolute_error_dataframe
     dataframe_of_3d_data = combine_freemocap_and_qualisys_into_dataframe(freemocap_3d_data=freemocap_data, qualisys_3d_data=qualisys_data)
 
-    generate_dash_app(dataframe_of_3d_data, rmse_error_daframe, absolute_error_dataframe)
+    generate_dash_app(dataframe_of_3d_data, rmse_error_dataframe, absolute_error_dataframe)
         
