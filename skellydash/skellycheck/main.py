@@ -1,60 +1,21 @@
-from dash import Dash, Output, Input, State, ALL
 import dash
-import dash_bootstrap_components as dbc
+from dash import Dash, Output, Input, State, ALL
 
+import dash_bootstrap_components as dbc
 from dash_bootstrap_templates import load_figure_template
 
 from data_utils.load_data import combine_freemocap_and_qualisys_into_dataframe
+from data_utils.file_manager import FileManager
 
 from ui_components.dashboard import prepare_dashboard_elements, update_joint_plots
+
 from layout.main_layout import get_layout
 from callback_utils import get_selected_marker, update_marker_buttons
 
-
-from pathlib import Path
-import pandas as pd
 import numpy as np
 
 COLOR_OF_CARDS = '#F3F5F7'
 FRAME_SKIP_INTERVAL = 50
-# Load and process data
-class FileManager:
-    def __init__(self, path_to_recording_folder: Path):
-        self.path_to_recording_folder = path_to_recording_folder
-        self.run()
-
-    def run(self):
-        self._build_paths()
-        self._load_data()
-
-    def _build_paths(self):
-        path_to_output_data_folder = self.path_to_recording_folder/'output_data'
-        self.path_to_freemocap_array = path_to_output_data_folder/'mediapipe_body_3d_xyz_transformed.npy'
-        self.path_to_qualisys_array = self.path_to_recording_folder/'qualisys'/'clipped_qualisys_skel_3d.npy'
-        self.rmse_csv_path = path_to_output_data_folder/'rmse_dataframe.csv'
-        self.absolute_error_csv_path = path_to_output_data_folder/'absolute_error_dataframe.csv'
-
-    def _load_data(self):
-        self.freemocap_data = self._load_if_exists(self.path_to_freemocap_array)
-        self.qualisys_data = self._load_if_exists(self.path_to_qualisys_array)
-        self.rmse_error_dataframe = self._load_csv_if_exists(self.rmse_csv_path)
-        self.absolute_error_dataframe = self._load_csv_if_exists(self.absolute_error_csv_path)
-
-    def _load_if_exists(self, path: Path):
-        if path.exists():
-            return np.load(path)
-        else:
-            print(f"Warning: File {path} does not exist.")
-            return None
-
-    def _load_csv_if_exists(self, path: Path):
-        if path.exists():
-            return pd.read_csv(path)
-        else:
-            print(f"Warning: File {path} does not exist.")
-            return None
-
-
 
 def generate_dash_app(dataframe_of_3d_data, rmse_error_dataframe, absolute_error_dataframe):
     # Initialize Dash App
@@ -120,6 +81,9 @@ def generate_dash_app(dataframe_of_3d_data, rmse_error_dataframe, absolute_error
 
 
 if __name__ == '__main__':
+
+        
+    from pathlib import Path
 
     path_to_recording_folder = Path(r"D:\2023-05-17_MDN_NIH_data\1.0_recordings\calib_3\sesh_2023-05-17_14_53_48_MDN_NIH_Trial3")
 
