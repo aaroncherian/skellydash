@@ -1,5 +1,5 @@
 
-from dash import Dash, Output, Input, State, ALL
+from dash import Dash
 
 import dash_bootstrap_components as dbc
 from dash_bootstrap_templates import load_figure_template
@@ -7,13 +7,15 @@ from dash_bootstrap_templates import load_figure_template
 from data_utils.load_data import combine_freemocap_and_qualisys_into_dataframe
 from data_utils.file_manager import FileManager
 
-from ui_components.dashboard import prepare_dashboard_elements, update_joint_plots, update_joint_marker_card, update_marker_buttons
+from ui_components.dashboard import prepare_dashboard_elements
 
 from layout.main_layout import get_layout
 
 from callbacks.marker_name_callbacks import register_marker_name_callbacks
 from callbacks.selected_marker_callback import register_selected_marker_callback
 from callbacks.info_card_callback import register_info_card_callback
+from callbacks.plot_update_callback import register_plot_update_callback
+from callbacks.marker_button_color_callback import register_marker_button_color_callback
 
 
 
@@ -27,6 +29,8 @@ def generate_dash_app(dataframe_of_3d_data, rmse_error_dataframe, absolute_error
     register_selected_marker_callback(app) #register a callback to find the selected marker and stored it
     register_marker_name_callbacks(app) #register a callback to update the marker name wherever it is listed in the app
     register_info_card_callback(app, rmse_error_dataframe)
+    register_plot_update_callback(app, dataframe_of_3d_data, absolute_error_dataframe, COLOR_OF_CARDS)
+    register_marker_button_color_callback(app)
 
     load_figure_template('LUX')
 
@@ -40,30 +44,6 @@ def generate_dash_app(dataframe_of_3d_data, rmse_error_dataframe, absolute_error
                             indicators=indicators,
                             color_of_cards=COLOR_OF_CARDS)
 
-
-    # Define a Dash callback that listens to multiple inputs and updates multiple outputs
-    @app.callback(
-        [Output({'type': 'marker-button', 'index': ALL}, 'className'),
-        Output('trajectory-plots', 'children'),
-        Output('error-plots', 'children'),
-        Output('error-shading-plots', 'children')],
-        [Input('store-selected-marker', 'data')],
-        [State({'type': 'marker-button', 'index': ALL}, 'id')]
-    )
-    def display_trajectories(stored_data, button_ids):
-        marker = stored_data['marker'] if stored_data else None
-
-        # Update the class names of the marker buttons based on the selected marker
-        updated_classnames = update_marker_buttons(marker, button_ids)
-        
-        # Create and update joint/marker plots based on the selected marker
-        trajectory_plots, absolute_error_plots, shaded_error_plots = update_joint_plots(
-            marker, dataframe_of_3d_data, absolute_error_dataframe, COLOR_OF_CARDS
-        )
-
-        # Return the updated information for the outputs
-        return updated_classnames, trajectory_plots, absolute_error_plots, shaded_error_plots
-        
     app.run_server(debug=False)
 
 
