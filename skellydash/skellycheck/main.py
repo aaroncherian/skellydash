@@ -13,6 +13,7 @@ from layout.main_layout import get_layout
 
 from callbacks.marker_name_callbacks import register_marker_name_callbacks
 from callbacks.selected_marker_callback import register_selected_marker_callback
+from callbacks.info_card_callback import register_info_card_callback
 
 
 
@@ -25,6 +26,7 @@ def generate_dash_app(dataframe_of_3d_data, rmse_error_dataframe, absolute_error
     app = Dash(__name__, external_stylesheets=[dbc.themes.LUX])
     register_selected_marker_callback(app) #register a callback to find the selected marker and stored it
     register_marker_name_callbacks(app) #register a callback to update the marker name wherever it is listed in the app
+    register_info_card_callback(app, rmse_error_dataframe)
 
     load_figure_template('LUX')
 
@@ -41,10 +43,7 @@ def generate_dash_app(dataframe_of_3d_data, rmse_error_dataframe, absolute_error
 
     # Define a Dash callback that listens to multiple inputs and updates multiple outputs
     @app.callback(
-        [Output('info-x-rmse', 'children'),
-        Output('info-y-rmse', 'children'),
-        Output('info-z-rmse', 'children'),
-        Output({'type': 'marker-button', 'index': ALL}, 'className'),
+        [Output({'type': 'marker-button', 'index': ALL}, 'className'),
         Output('trajectory-plots', 'children'),
         Output('error-plots', 'children'),
         Output('error-shading-plots', 'children')],
@@ -61,11 +60,9 @@ def generate_dash_app(dataframe_of_3d_data, rmse_error_dataframe, absolute_error
         trajectory_plots, absolute_error_plots, shaded_error_plots = update_joint_plots(
             marker, dataframe_of_3d_data, absolute_error_dataframe, COLOR_OF_CARDS
         )
-        
-        x_rmse, y_rmse, z_rmse = update_joint_marker_card(marker, rmse_error_dataframe)
 
         # Return the updated information for the outputs
-        return x_rmse, y_rmse, z_rmse, updated_classnames, trajectory_plots, absolute_error_plots, shaded_error_plots
+        return updated_classnames, trajectory_plots, absolute_error_plots, shaded_error_plots
         
     app.run_server(debug=False)
 
